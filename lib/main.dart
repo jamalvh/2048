@@ -59,9 +59,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
+    grid[0][0].val = 2;
+
     grid[0][1].val = 2;
     grid[0][2].val = 4;
-    grid[0][3].val = 4;
     grid[3][3].val = 2;
     grid[2][2].val = 4;
     grid[1][2].val = 8;
@@ -111,13 +112,8 @@ class _MyHomePageState extends State<MyHomePage> {
           child: GestureDetector(
             onHorizontalDragEnd: (details) {
               if (details.primaryVelocity! > 250) {
-                for (int i = 0; i < 4; i++) {
-                  for (int j = 0; j < 4; j++) {
-                    print(10 * grid[i][j].x + grid[i][j].y);
-                  }
-                }
                 print("swipe: right");
-                // swipeRight();
+                swipeRight();
               }
               if (details.primaryVelocity! < -250) {
                 print("swipe: left");
@@ -145,7 +141,43 @@ class _MyHomePageState extends State<MyHomePage> {
 
   // TODO: Swipe R,U,D
 
-  // swipeRight();
+  void swipeRight() {
+    for (int i = 0; i < grid.length; i++) {
+      var lastNum = -1;
+      var lastNumIdx = -1; // needed for 2 0 2 0 case
+      for (int j = grid.length - 1; j > 0; j--) {
+        if (grid[i][j].val == 0) {
+          int scout = j - 1;
+          while (scout >= 0 && grid[i][scout].val == 0) {
+            scout--;
+          }
+          if (scout >= 0) {
+            if (grid[i][scout].val == lastNum) {
+              // merge
+              setState(() {
+                grid[i][lastNumIdx].val = grid[i][scout].val * 2;
+                grid[i][scout].val = 0;
+              });
+              lastNum = -1;
+              lastNumIdx = -1;
+            } else {
+              // move left (mark lastNum)
+              lastNum = grid[i][scout].val;
+              lastNumIdx = j;
+              setState(() {
+                grid[i][j].val = grid[i][scout].val;
+                grid[i][scout].val = 0;
+              });
+            }
+          }
+        } else {
+          // 2 0 2 0 case, first is nonzero
+          lastNum = grid[i][j].val;
+          lastNumIdx = j;
+        }
+      }
+    }
+  }
 
   // swipeUp();
 
@@ -158,6 +190,7 @@ class _MyHomePageState extends State<MyHomePage> {
       var lastNum = -1;
       var lastNumIdx = -1; // needed for 2 0 2 0 case
       for (int j = 0; j < grid.length - 1; j++) {
+        print(lastNum);
         if (grid[i][j].val == 0) {
           int scout = j + 1;
           while (scout < 4 && grid[i][scout].val == 0) {
