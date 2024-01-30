@@ -170,6 +170,16 @@ class _MyHomePageState extends State<MyHomePage> {
               });
             }
           }
+        } else if (grid[i][j].val == lastNum) {
+          // 2 2 0 0 case
+          // merge
+          setState(() {
+            grid[i][lastNumIdx].val = grid[i][j].val * 2;
+            grid[i][j].val = 0;
+          });
+          lastNum = -1;
+          lastNumIdx = -1;
+          j++;
         } else {
           // 2 0 2 0 case, first is nonzero
           lastNum = grid[i][j].val;
@@ -190,7 +200,6 @@ class _MyHomePageState extends State<MyHomePage> {
       var lastNum = -1;
       var lastNumIdx = -1; // needed for 2 0 2 0 case
       for (int j = 0; j < grid.length - 1; j++) {
-        print(lastNum);
         if (grid[i][j].val == 0) {
           int scout = j + 1;
           while (scout < 4 && grid[i][scout].val == 0) {
@@ -215,6 +224,16 @@ class _MyHomePageState extends State<MyHomePage> {
               });
             }
           }
+        } else if (grid[i][j].val == lastNum) {
+          // 2 2 0 0 case
+          // merge
+          setState(() {
+            grid[i][lastNumIdx].val = grid[i][j].val * 2;
+            grid[i][j].val = 0;
+          });
+          lastNum = -1;
+          lastNumIdx = -1;
+          j--;
         } else {
           // 2 0 2 0 case, first is nonzero
           lastNum = grid[i][j].val;
