@@ -21,6 +21,7 @@ Map<int, Color> tileColors = {
   4: const Color.fromARGB(255, 238, 225, 201),
   8: const Color.fromARGB(255, 243, 178, 122),
   16: const Color.fromARGB(255, 246, 150, 100),
+  32: Color.fromARGB(255, 245, 142, 87),
 };
 
 Map<int, Color> fontColors = {
@@ -29,6 +30,7 @@ Map<int, Color> fontColors = {
   4: const Color.fromARGB(255, 119, 110, 101),
   8: Colors.white,
   16: Colors.white,
+  32: Colors.white,
 };
 
 class Tile {
@@ -47,6 +49,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  int score = 0;
   List<List<Tile>> grid = List.generate(
       4,
       (col) => List.generate(4, (row) {
@@ -104,39 +107,73 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     ));
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 249, 246, 242),
+      backgroundColor: const Color.fromARGB(255, 250, 248, 239),
       body: Center(
-        child: Container(
-          width: gridSize,
-          height: gridSize,
-          decoration: const BoxDecoration(
-              color: Color.fromARGB(255, 187, 173, 160),
-              borderRadius: BorderRadius.all(Radius.circular(4.0))),
-          child: GestureDetector(
-            onHorizontalDragEnd: (details) {
-              if (details.primaryVelocity! > 250) {
-                print("swipe: right");
-                swipeRight();
-              }
-              if (details.primaryVelocity! < -250) {
-                print("swipe: left");
-                swipeLeft();
-              }
-            },
-            onVerticalDragEnd: (details) {
-              if (details.primaryVelocity! < -250) {
-                print("swipe: up");
-                swipeUp();
-              }
-              if (details.primaryVelocity! > 250) {
-                print("swipe: down");
-                swipeDown();
-              }
-            },
-            child: Stack(
-              children: tiles,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 150,
+              decoration: const BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(4)),
+                color: Color.fromARGB(255, 187, 173, 160),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 8),
+                  const Text("SCORE",
+                      style: TextStyle(
+                        color: Color.fromARGB(255, 250, 248, 239),
+                        fontWeight: FontWeight.w800,
+                      )),
+                  Text(
+                    "$score",
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 40,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
+            const SizedBox(
+              height: 20,
+            ),
+            Container(
+              width: gridSize,
+              height: gridSize,
+              decoration: const BoxDecoration(
+                  color: Color.fromARGB(255, 187, 173, 160),
+                  borderRadius: BorderRadius.all(Radius.circular(4.0))),
+              child: GestureDetector(
+                onHorizontalDragEnd: (details) {
+                  if (details.primaryVelocity! > 250) {
+                    print("swipe: right");
+                    swipeRight();
+                  }
+                  if (details.primaryVelocity! < -250) {
+                    print("swipe: left");
+                    swipeLeft();
+                  }
+                },
+                onVerticalDragEnd: (details) {
+                  if (details.primaryVelocity! < -250) {
+                    print("swipe: up");
+                    swipeUp();
+                  }
+                  if (details.primaryVelocity! > 250) {
+                    print("swipe: down");
+                    swipeDown();
+                  }
+                },
+                child: Stack(
+                  children: tiles,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -160,6 +197,7 @@ class _MyHomePageState extends State<MyHomePage> {
               setState(() {
                 grid[i][lastNumIdx].val = grid[i][scout].val * 2;
                 grid[i][scout].val = 0;
+                score += grid[i][lastNumIdx].val;
               });
               lastNum = -1;
               lastNumIdx = -1;
@@ -179,6 +217,7 @@ class _MyHomePageState extends State<MyHomePage> {
           setState(() {
             grid[i][lastNumIdx].val = grid[i][j].val * 2;
             grid[i][j].val = 0;
+            score += grid[i][lastNumIdx].val;
           });
           lastNum = -1;
           lastNumIdx = -1;
@@ -196,7 +235,7 @@ class _MyHomePageState extends State<MyHomePage> {
     for (int j = 0; j < grid.length; j++) {
       var lastNum = -1;
       var lastNumIdx = -1; // needed for 2 0 2 0 case
-      for (int i = 0; i < grid.length - 1; i++) {
+      for (int i = 0; i < grid.length; i++) {
         if (grid[i][j].val == 0) {
           int scout = i + 1;
           while (scout < 4 && grid[scout][j].val == 0) {
@@ -206,14 +245,15 @@ class _MyHomePageState extends State<MyHomePage> {
             if (grid[scout][j].val == lastNum) {
               // merge
               setState(() {
-                grid[i][lastNumIdx].val = grid[scout][j].val * 2;
+                grid[lastNumIdx][j].val = grid[scout][j].val * 2;
                 grid[scout][j].val = 0;
+                score += grid[lastNumIdx][j].val;
               });
               lastNum = -1;
               lastNumIdx = -1;
             } else {
               // move left (mark lastNum)
-              lastNum = grid[i][j].val;
+              lastNum = grid[scout][j].val;
               lastNumIdx = i;
               setState(() {
                 grid[i][j].val = grid[scout][j].val;
@@ -227,6 +267,7 @@ class _MyHomePageState extends State<MyHomePage> {
           setState(() {
             grid[lastNumIdx][j].val = grid[i][j].val * 2;
             grid[i][j].val = 0;
+            score += grid[lastNumIdx][j].val;
           });
           lastNum = -1;
           lastNumIdx = -1;
@@ -256,6 +297,7 @@ class _MyHomePageState extends State<MyHomePage> {
               setState(() {
                 grid[lastNumIdx][j].val = grid[scout][j].val * 2;
                 grid[scout][j].val = 0;
+                score += grid[lastNumIdx][j].val;
               });
               lastNum = -1;
               lastNumIdx = -1;
@@ -275,6 +317,7 @@ class _MyHomePageState extends State<MyHomePage> {
           setState(() {
             grid[lastNumIdx][j].val = grid[i][j].val * 2;
             grid[i][j].val = 0;
+            score += grid[lastNumIdx][j].val;
           });
           lastNum = -1;
           lastNumIdx = -1;
@@ -306,6 +349,7 @@ class _MyHomePageState extends State<MyHomePage> {
               setState(() {
                 grid[i][lastNumIdx].val = grid[i][scout].val * 2;
                 grid[i][scout].val = 0;
+                score += grid[i][lastNumIdx].val;
               });
               lastNum = -1;
               lastNumIdx = -1;
@@ -325,6 +369,7 @@ class _MyHomePageState extends State<MyHomePage> {
           setState(() {
             grid[i][lastNumIdx].val = grid[i][j].val * 2;
             grid[i][j].val = 0;
+            score += grid[i][lastNumIdx].val;
           });
           lastNum = -1;
           lastNumIdx = -1;
