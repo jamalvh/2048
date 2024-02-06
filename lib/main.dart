@@ -60,8 +60,11 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     grid[0][0].val = 2;
-
     grid[0][1].val = 2;
+    grid[1][1].val = 2;
+    grid[2][1].val = 2;
+    grid[3][1].val = 2;
+
     grid[0][2].val = 4;
     grid[3][3].val = 2;
     grid[2][2].val = 4;
@@ -123,11 +126,11 @@ class _MyHomePageState extends State<MyHomePage> {
             onVerticalDragEnd: (details) {
               if (details.primaryVelocity! < -250) {
                 print("swipe: up");
-                // swipeUp();
+                swipeUp();
               }
               if (details.primaryVelocity! > 250) {
                 print("swipe: down");
-                // swipeDown();
+                swipeDown();
               }
             },
             child: Stack(
@@ -189,9 +192,101 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  // swipeUp();
+  void swipeUp() {
+    for (int j = 0; j < grid.length; j++) {
+      var lastNum = -1;
+      var lastNumIdx = -1; // needed for 2 0 2 0 case
+      for (int i = 0; i < grid.length - 1; i++) {
+        if (grid[i][j].val == 0) {
+          int scout = i + 1;
+          while (scout < 4 && grid[scout][j].val == 0) {
+            scout++;
+          }
+          if (scout < 4) {
+            if (grid[scout][j].val == lastNum) {
+              // merge
+              setState(() {
+                grid[i][lastNumIdx].val = grid[scout][j].val * 2;
+                grid[scout][j].val = 0;
+              });
+              lastNum = -1;
+              lastNumIdx = -1;
+            } else {
+              // move left (mark lastNum)
+              lastNum = grid[i][j].val;
+              lastNumIdx = i;
+              setState(() {
+                grid[i][j].val = grid[scout][j].val;
+                grid[scout][j].val = 0;
+              });
+            }
+          }
+        } else if (grid[i][j].val == lastNum) {
+          // 2 2 0 0 case
+          // merge
+          setState(() {
+            grid[lastNumIdx][j].val = grid[i][j].val * 2;
+            grid[i][j].val = 0;
+          });
+          lastNum = -1;
+          lastNumIdx = -1;
+          i--;
+        } else {
+          // 2 0 2 0 case, first is nonzero
+          lastNum = grid[i][j].val;
+          lastNumIdx = i;
+        }
+      }
+    }
+  }
 
-  // swipeDown();
+  void swipeDown() {
+    for (int j = 0; j < grid.length; j++) {
+      var lastNum = -1;
+      var lastNumIdx = -1; // needed for 2 0 2 0 case
+      for (int i = grid.length - 1; i > 0; i--) {
+        if (grid[i][j].val == 0) {
+          int scout = i - 1;
+          while (scout >= 0 && grid[scout][j].val == 0) {
+            scout--;
+          }
+          if (scout >= 0) {
+            if (grid[scout][j].val == lastNum) {
+              // merge
+              setState(() {
+                grid[lastNumIdx][j].val = grid[scout][j].val * 2;
+                grid[scout][j].val = 0;
+              });
+              lastNum = -1;
+              lastNumIdx = -1;
+            } else {
+              // move left (mark lastNum)
+              lastNum = grid[scout][j].val;
+              lastNumIdx = i;
+              setState(() {
+                grid[i][j].val = grid[scout][j].val;
+                grid[scout][j].val = 0;
+              });
+            }
+          }
+        } else if (grid[i][j].val == lastNum) {
+          // 2 2 0 0 case
+          // merge
+          setState(() {
+            grid[lastNumIdx][j].val = grid[i][j].val * 2;
+            grid[i][j].val = 0;
+          });
+          lastNum = -1;
+          lastNumIdx = -1;
+          i++;
+        } else {
+          // 2 0 2 0 case, first is nonzero
+          lastNum = grid[i][j].val;
+          lastNumIdx = i;
+        }
+      }
+    }
+  }
 
   // also figure out how pt system works in 2048
 
