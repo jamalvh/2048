@@ -1,4 +1,10 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+
+// TODO: Extra UI
+// TODO: Michiganify
+// TODO: HiveDB (highscores, progress (save nums not tiles))
 
 void main() {
   runApp(const MyApp());
@@ -21,7 +27,13 @@ Map<int, Color> tileColors = {
   4: const Color.fromARGB(255, 238, 225, 201),
   8: const Color.fromARGB(255, 243, 178, 122),
   16: const Color.fromARGB(255, 246, 150, 100),
-  32: Color.fromARGB(255, 245, 142, 87),
+  32: const Color.fromARGB(255, 247, 123, 95),
+  64: const Color.fromARGB(255, 247, 95, 58),
+  128: const Color.fromARGB(255, 237, 208, 116),
+  256: const Color.fromARGB(255, 237, 208, 116),
+  512: const Color.fromARGB(255, 237, 208, 116),
+  1024: const Color.fromARGB(255, 237, 208, 116),
+  2048: const Color.fromARGB(255, 237, 208, 116),
 };
 
 Map<int, Color> fontColors = {
@@ -31,6 +43,12 @@ Map<int, Color> fontColors = {
   8: Colors.white,
   16: Colors.white,
   32: Colors.white,
+  64: Colors.white,
+  128: Colors.white,
+  256: Colors.white,
+  512: Colors.white,
+  1024: Colors.white,
+  2048: Colors.white,
 };
 
 class Tile {
@@ -62,17 +80,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
-    grid[0][0].val = 2;
-    grid[0][1].val = 2;
-    grid[1][1].val = 2;
-    grid[2][1].val = 2;
-    grid[3][1].val = 2;
-
-    grid[0][2].val = 4;
-    grid[3][3].val = 2;
-    grid[2][2].val = 4;
-    grid[1][2].val = 8;
-    grid[2][3].val = 16;
+    createNewTile(2);
     super.initState();
   }
 
@@ -152,20 +160,24 @@ class _MyHomePageState extends State<MyHomePage> {
                   if (details.primaryVelocity! > 250) {
                     print("swipe: right");
                     swipeRight();
+                    createNewTile(1);
                   }
                   if (details.primaryVelocity! < -250) {
                     print("swipe: left");
                     swipeLeft();
+                    createNewTile(1);
                   }
                 },
                 onVerticalDragEnd: (details) {
                   if (details.primaryVelocity! < -250) {
                     print("swipe: up");
                     swipeUp();
+                    createNewTile(1);
                   }
                   if (details.primaryVelocity! > 250) {
                     print("swipe: down");
                     swipeDown();
+                    createNewTile(1);
                   }
                 },
                 child: Stack(
@@ -173,13 +185,36 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ),
             ),
+            const SizedBox(
+              height: 15,
+            ),
+            ElevatedButton(
+              onPressed: () {
+                startNewGame();
+              },
+              style: ButtonStyle(
+                backgroundColor: const MaterialStatePropertyAll(
+                    Color.fromARGB(255, 143, 122, 101)),
+                shape: MaterialStatePropertyAll(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+                elevation: const MaterialStatePropertyAll(0),
+              ),
+              child: const Text(
+                "New Game",
+                style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w900,
+                    fontSize: 15),
+              ),
+            ),
           ],
         ),
       ),
     );
   }
-
-  // TODO: Swipe R,U,D
 
   void swipeRight() {
     for (int i = 0; i < grid.length; i++) {
@@ -381,5 +416,41 @@ class _MyHomePageState extends State<MyHomePage> {
         }
       }
     }
+  }
+
+  // Create num number of tiles
+  void createNewTile(int num) {
+    var rng = Random();
+    int x = rng.nextInt(4);
+    int y = rng.nextInt(4);
+
+    for (int i = 0; i < num; i++) {
+      while (grid[x][y].val != 0) {
+        x = rng.nextInt(4);
+        y = rng.nextInt(4);
+      }
+
+      if (rng.nextInt(10) == 1) {
+        // 10% change of 4
+        grid[x][y].val = 4;
+      } else {
+        grid[x][y].val = 2;
+      }
+    }
+  }
+
+  void startNewGame() {
+    // Clear tiles
+    setState(() {
+      for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+          grid[i][j].val = 0;
+        }
+      }
+      // Set score to 0
+      score = 0;
+      // Generate 2 new tiles
+      createNewTile(2);
+    });
   }
 }
