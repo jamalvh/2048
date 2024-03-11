@@ -1,9 +1,10 @@
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 
+// Fix bug 2 4 2 2 no merge left (same for right)
 // TODO: Extra UI
 // TODO: Michiganify
+// TODO: Animation
 // TODO: HiveDB (highscores, progress (save nums not tiles))
 
 void main() {
