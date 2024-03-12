@@ -1,8 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 
-// Fix bug 2 4 2 2 no merge left (same for right)
-// TODO: Extra UI
 // TODO: Michiganify
 // TODO: Animation
 // TODO: HiveDB (highscores, progress (save nums not tiles))
@@ -23,11 +21,11 @@ class MyApp extends StatelessWidget {
 }
 
 Map<int, Color> tileColors = {
-  0: const Color.fromARGB(255, 205, 192, 181),
-  2: const Color.fromARGB(255, 238, 228, 218),
-  4: const Color.fromARGB(255, 238, 225, 201),
-  8: const Color.fromARGB(255, 243, 178, 122),
-  16: const Color.fromARGB(255, 246, 150, 100),
+  0: const Color.fromARGB(255, 19, 59, 95),
+  2: const Color.fromARGB(255, 226, 219, 212),
+  4: const Color.fromARGB(255, 186, 186, 186),
+  8: const Color.fromARGB(255, 255, 203, 5),
+  16: const Color.fromARGB(255, 234, 188, 6),
   32: const Color.fromARGB(255, 247, 123, 95),
   64: const Color.fromARGB(255, 247, 95, 58),
   128: const Color.fromARGB(255, 237, 208, 116),
@@ -82,6 +80,10 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     createNewTile(2);
+    // grid[0][0].val = 2;
+    // grid[1][0].val = 2;
+    // grid[2][0].val = 16;
+    // grid[3][0].val = 2048;
     super.initState();
   }
 
@@ -94,29 +96,28 @@ class _MyHomePageState extends State<MyHomePage> {
         height: tileSize,
         width: tileSize,
         child: Center(
-          child: Container(
-            height: tileSize - 4 * 2,
-            width: tileSize - 4 * 2,
-            decoration: BoxDecoration(
-              borderRadius: const BorderRadius.all(Radius.circular(4.0)),
-              color: tileColors[tile.val],
-            ),
-            child: Center(
-              child: Text(
-                tile.val != 0 ? tile.val.toString() : "",
-                style: TextStyle(
-                  fontSize: tileSize * 0.45,
-                  fontWeight: FontWeight.w800,
-                  color: fontColors[tile.val],
-                ),
+            child: Container(
+          height: tileSize - 4 * 2,
+          width: tileSize - 4 * 2,
+          decoration: BoxDecoration(
+            borderRadius: const BorderRadius.all(Radius.circular(4.0)),
+            color: tileColors[tile.val],
+          ),
+          child: Center(
+            child: Text(
+              tile.val != 0 ? tile.val.toString() : "",
+              style: TextStyle(
+                fontSize: tileSize * 0.45,
+                fontWeight: FontWeight.w800,
+                color: fontColors[tile.val],
               ),
             ),
           ),
-        ),
+        )),
       ),
     ));
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 250, 248, 239),
+      backgroundColor: const Color.fromARGB(255, 25, 76, 124),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -125,7 +126,7 @@ class _MyHomePageState extends State<MyHomePage> {
               width: 150,
               decoration: const BoxDecoration(
                 borderRadius: BorderRadius.all(Radius.circular(4)),
-                color: Color.fromARGB(255, 187, 173, 160),
+                color: Color.fromARGB(255, 19, 59, 95),
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -154,7 +155,7 @@ class _MyHomePageState extends State<MyHomePage> {
               width: gridSize,
               height: gridSize,
               decoration: const BoxDecoration(
-                  color: Color.fromARGB(255, 187, 173, 160),
+                  color: Color.fromARGB(255, 14, 43, 69),
                   borderRadius: BorderRadius.all(Radius.circular(4.0))),
               child: GestureDetector(
                 onHorizontalDragEnd: (details) {
@@ -195,7 +196,7 @@ class _MyHomePageState extends State<MyHomePage> {
               },
               style: ButtonStyle(
                 backgroundColor: const MaterialStatePropertyAll(
-                    Color.fromARGB(255, 143, 122, 101)),
+                    Color.fromARGB(255, 14, 43, 69)),
                 shape: MaterialStatePropertyAll(
                   RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(4),
@@ -221,7 +222,7 @@ class _MyHomePageState extends State<MyHomePage> {
     for (int i = 0; i < grid.length; i++) {
       var lastNum = -1;
       var lastNumIdx = -1; // needed for 2 0 2 0 case
-      for (int j = grid.length - 1; j > 0; j--) {
+      for (int j = grid.length - 1; j >= 0; j--) {
         if (grid[i][j].val == 0) {
           int scout = j - 1;
           while (scout >= 0 && grid[i][scout].val == 0) {
@@ -248,7 +249,7 @@ class _MyHomePageState extends State<MyHomePage> {
             }
           }
         } else if (grid[i][j].val == lastNum) {
-          // 2 2 0 0 case
+          // 2 2 16 4 case
           // merge
           setState(() {
             grid[i][lastNumIdx].val = grid[i][j].val * 2;
@@ -321,7 +322,7 @@ class _MyHomePageState extends State<MyHomePage> {
     for (int j = 0; j < grid.length; j++) {
       var lastNum = -1;
       var lastNumIdx = -1; // needed for 2 0 2 0 case
-      for (int i = grid.length - 1; i > 0; i--) {
+      for (int i = grid.length - 1; i >= 0; i--) {
         if (grid[i][j].val == 0) {
           int scout = i - 1;
           while (scout >= 0 && grid[scout][j].val == 0) {
@@ -373,7 +374,7 @@ class _MyHomePageState extends State<MyHomePage> {
     for (int i = 0; i < grid.length; i++) {
       var lastNum = -1;
       var lastNumIdx = -1; // needed for 2 0 2 0 case
-      for (int j = 0; j < grid.length - 1; j++) {
+      for (int j = 0; j < grid.length; j++) {
         if (grid[i][j].val == 0) {
           int scout = j + 1;
           while (scout < 4 && grid[i][scout].val == 0) {
