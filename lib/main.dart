@@ -80,10 +80,22 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     createNewTile(2);
-    // grid[0][0].val = 2;
-    // grid[1][0].val = 2;
-    // grid[2][0].val = 16;
-    // grid[3][0].val = 2048;
+    grid[0][0].val = 2;
+    grid[0][1].val = 2;
+    grid[0][2].val = 8;
+    grid[0][3].val = 16;
+    grid[1][0].val = 32;
+    grid[1][1].val = 64;
+    grid[1][2].val = 128;
+    grid[1][3].val = 256;
+    grid[2][0].val = 512;
+    grid[2][1].val = 1024;
+    grid[2][2].val = 2048;
+    grid[2][3].val = 128;
+    grid[3][0].val = 256;
+    grid[3][1].val = 512;
+    grid[3][2].val = 1024;
+    grid[3][3].val = 2048;
     super.initState();
   }
 
@@ -107,7 +119,7 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Text(
               tile.val != 0 ? tile.val.toString() : "",
               style: TextStyle(
-                fontSize: tileSize * 0.45,
+                fontSize: (tile.val >= 1024) ? tileSize * 0.3 : tileSize * 0.4,
                 fontWeight: FontWeight.w800,
                 color: fontColors[tile.val],
               ),
@@ -163,11 +175,13 @@ class _MyHomePageState extends State<MyHomePage> {
                     print("swipe: right");
                     swipeRight();
                     createNewTile(1);
+                    checkIfLost();
                   }
                   if (details.primaryVelocity! < -250) {
                     print("swipe: left");
                     swipeLeft();
                     createNewTile(1);
+                    checkIfLost();
                   }
                 },
                 onVerticalDragEnd: (details) {
@@ -175,11 +189,13 @@ class _MyHomePageState extends State<MyHomePage> {
                     print("swipe: up");
                     swipeUp();
                     createNewTile(1);
+                    checkIfLost();
                   }
                   if (details.primaryVelocity! > 250) {
                     print("swipe: down");
                     swipeDown();
                     createNewTile(1);
+                    checkIfLost();
                   }
                 },
                 child: Stack(
@@ -454,5 +470,91 @@ class _MyHomePageState extends State<MyHomePage> {
       // Generate 2 new tiles
       createNewTile(2);
     });
+  }
+
+  void checkIfLost() {
+    // check if full
+    for (int i = 0; i < 4; i++) {
+      for (int j = 0; j < 4; j++) {
+        if (grid[i][j].val == 0) {
+          return;
+        }
+      }
+    }
+
+    // check if merges possible
+    for (int i = 0; i < 4; i++) {
+      for (int j = 0; j < 4; j++) {
+        if (i != 0) {
+          if (grid[i][j].val == grid[i - 1][j].val) {
+            return;
+          }
+        }
+        if (i != 3) {
+          if (grid[i][j].val == grid[i + 1][j].val) {
+            return;
+          }
+        }
+        if (j != 0) {
+          if (grid[i][j].val == grid[i][j - 1].val) {
+            return;
+          }
+        }
+        if (j != 3) {
+          if (grid[i][j].val == grid[i][j + 1].val) {
+            return;
+          }
+        }
+      }
+    }
+
+    showLosePopup();
+    return;
+  }
+
+  showLosePopup() {
+    return showDialog(
+      useSafeArea: false,
+      context: context,
+      builder: (context) {
+        return Container(
+          color: Colors.white.withOpacity(0.4),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text("Game Over!",
+                    style: TextStyle(
+                        color: Colors.white, decoration: TextDecoration.none)),
+                const SizedBox(height: 15),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context); // Close the dialog
+                    startNewGame();
+                  },
+                  style: ButtonStyle(
+                    backgroundColor: const MaterialStatePropertyAll(
+                        Color.fromARGB(255, 14, 43, 69)),
+                    shape: MaterialStatePropertyAll(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                    elevation: const MaterialStatePropertyAll(0),
+                  ),
+                  child: const Text(
+                    "Try again",
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 15),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 }
