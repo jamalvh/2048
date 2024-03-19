@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'dart:math';
 import 'package:flutter/material.dart';
 
@@ -73,17 +75,17 @@ class _MyHomePageState extends State<MyHomePage> {
             return Tile(row, col, 0);
           }));
   Iterable<Tile> get flattenedGrid => grid.expand((element) => element);
-  late double gridSize = MediaQuery.of(context).size.width * .90;
+  late double gridSize = 353.7;
   late double tileSize = gridSize / 4;
   List<Widget> tiles = [];
 
   @override
   void initState() {
-    createNewTile(2);
+    // createNewTile(2);
     grid[0][0].val = 2;
-    grid[0][1].val = 2;
+    grid[0][1].val = 4;
     grid[0][2].val = 8;
-    grid[0][3].val = 16;
+    grid[3][3].val = 16;
     grid[1][0].val = 32;
     grid[1][1].val = 64;
     grid[1][2].val = 128;
@@ -95,7 +97,6 @@ class _MyHomePageState extends State<MyHomePage> {
     grid[3][0].val = 256;
     grid[3][1].val = 512;
     grid[3][2].val = 1024;
-    grid[3][3].val = 2048;
     super.initState();
   }
 
@@ -438,18 +439,23 @@ class _MyHomePageState extends State<MyHomePage> {
 
   // Create num number of tiles
   void createNewTile(int num) {
+    if (isBoardFull()) {
+      return;
+    }
     var rng = Random();
-    int x = rng.nextInt(4);
-    int y = rng.nextInt(4);
-
     for (int i = 0; i < num; i++) {
+      int index = rng.nextInt(16); // Generate a random number from 0 to 15
+      int x = index ~/ 4; // Calculate x coordinate
+      int y = index % 4; // Calculate y coordinate
+
       while (grid[x][y].val != 0) {
-        x = rng.nextInt(4);
-        y = rng.nextInt(4);
+        index = (index + 1) % 16; // Wrap around if necessary
+        x = index ~/ 4; // Recalculate x coordinate
+        y = index % 4; // Recalculate y coordinate
       }
 
       if (rng.nextInt(10) == 1) {
-        // 10% change of 4
+        // 10% chance of 4
         grid[x][y].val = 4;
       } else {
         grid[x][y].val = 2;
@@ -473,13 +479,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void checkIfLost() {
-    // check if full
-    for (int i = 0; i < 4; i++) {
-      for (int j = 0; j < 4; j++) {
-        if (grid[i][j].val == 0) {
-          return;
-        }
-      }
+    if (!isBoardFull()) {
+      return;
     }
 
     // check if merges possible
@@ -512,20 +513,34 @@ class _MyHomePageState extends State<MyHomePage> {
     return;
   }
 
+  bool isBoardFull() {
+    // check if full
+    for (int i = 0; i < 4; i++) {
+      for (int j = 0; j < 4; j++) {
+        if (grid[i][j].val == 0) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
   showLosePopup() {
     return showDialog(
       useSafeArea: false,
       context: context,
       builder: (context) {
         return Container(
-          color: Colors.white.withOpacity(0.4),
+          color: const Color.fromARGB(255, 25, 76, 124).withOpacity(0.7),
           child: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Text("Game Over!",
                     style: TextStyle(
-                        color: Colors.white, decoration: TextDecoration.none)),
+                        color: Colors.white,
+                        decoration: TextDecoration.none,
+                        fontSize: 30)),
                 const SizedBox(height: 15),
                 ElevatedButton(
                   onPressed: () {
