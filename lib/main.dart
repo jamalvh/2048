@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 // TODO: Michiganify
 // TODO: Animation
 // TODO: HiveDB (highscores, progress (save nums not tiles))
+// tile stacking on merge and new game (something with Stack and no pop)
 
 void main() {
   runApp(const MyApp());
@@ -82,21 +83,21 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     // createNewTile(2);
-    grid[0][0].val = 2;
-    grid[0][1].val = 4;
-    grid[0][2].val = 8;
-    grid[3][3].val = 16;
-    grid[1][0].val = 32;
-    grid[1][1].val = 64;
-    grid[1][2].val = 128;
-    grid[1][3].val = 256;
-    grid[2][0].val = 512;
-    grid[2][1].val = 1024;
-    grid[2][2].val = 2048;
-    grid[2][3].val = 128;
-    grid[3][0].val = 256;
-    grid[3][1].val = 512;
-    grid[3][2].val = 1024;
+    // grid[0][0].val = 2;
+    // grid[0][1].val = 4;
+    // grid[0][2].val = 8;
+    // grid[3][3].val = 16;
+    // grid[1][0].val = 32;
+    // grid[1][1].val = 64;
+    // grid[1][2].val = 128;
+    // grid[1][3].val = 256;
+    // grid[2][0].val = 512;
+    // grid[2][1].val = 1024;
+    // grid[2][2].val = 2048;
+    // grid[2][3].val = 128;
+    // grid[3][0].val = 256;
+    // grid[3][1].val = 512;
+    // grid[3][2].val = 1024;
     super.initState();
   }
 
