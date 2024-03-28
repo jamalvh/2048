@@ -2,13 +2,18 @@
 
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 // TODO: Michiganify
 // TODO: Animation
 // TODO: HiveDB (highscores, progress (save nums not tiles))
 // tile stacking on merge and new game (something with Stack and no pop)
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Hive.initFlutter();
+  await Hive.openBox('stats');
+  await Hive.openBox('ongoingGame');
   runApp(const MyApp());
 }
 
@@ -69,6 +74,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  Box myBox = Hive.box('stats');
+  Box myOngoingGameBox = Hive.box('ongoingGame');
   int score = 0;
   List<List<Tile>> grid = List.generate(
       4,
@@ -82,7 +89,21 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
-    // createNewTile(2);
+    myOngoingGameBox.clear();
+    if (!myBox.containsKey('highscore')) {
+      myBox.put('highscore', 0);
+    }
+
+    if (myOngoingGameBox.length != 0) {
+      score = myOngoingGameBox.get('score');
+      for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+          grid[i][j].val = myOngoingGameBox.getAt(i * 4 + j);
+        }
+      }
+    } else {
+      createNewTile(2);
+    }
     // grid[0][0].val = 2;
     // grid[0][1].val = 4;
     // grid[0][2].val = 8;
@@ -103,6 +124,13 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    myOngoingGameBox.clear();
+    myOngoingGameBox.put('score', score);
+    for (int i = 0; i < 4; i++) {
+      for (int j = 0; j < 4; j++) {
+        myOngoingGameBox.add(grid[i][j].val);
+      }
+    }
     tiles.addAll(flattenedGrid.map(
       (tile) => Positioned(
         top: tile.y * tileSize,
@@ -136,31 +164,63 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              width: 150,
-              decoration: const BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(4)),
-                color: Color.fromARGB(255, 19, 59, 95),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const SizedBox(height: 8),
-                  const Text("SCORE",
-                      style: TextStyle(
-                        color: Color.fromARGB(255, 250, 248, 239),
-                        fontWeight: FontWeight.w800,
-                      )),
-                  Text(
-                    "$score",
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 40,
-                      fontWeight: FontWeight.w800,
-                    ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 150,
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(4)),
+                    color: Color.fromARGB(255, 19, 59, 95),
                   ),
-                ],
-              ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 8),
+                      const Text("SCORE",
+                          style: TextStyle(
+                            color: Color.fromARGB(255, 250, 248, 239),
+                            fontWeight: FontWeight.w800,
+                          )),
+                      Text(
+                        "$score",
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 40,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 20),
+                Container(
+                  width: 150,
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(4)),
+                    color: Color.fromARGB(255, 19, 59, 95),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 8),
+                      const Text("BEST",
+                          style: TextStyle(
+                            color: Color.fromARGB(255, 250, 248, 239),
+                            fontWeight: FontWeight.w800,
+                          )),
+                      Text(
+                        myBox.get('highscore').toString(),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 40,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
             const SizedBox(
               height: 20,
@@ -465,6 +525,9 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void startNewGame() {
+    if (score > myBox.get('highscore')) {
+      myBox.put('highscore', score);
+    }
     // Clear tiles
     setState(() {
       for (int i = 0; i < 4; i++) {
@@ -508,6 +571,11 @@ class _MyHomePageState extends State<MyHomePage> {
           }
         }
       }
+    }
+
+    // Lost game
+    if (score > myBox.get('highscore')) {
+      myBox.put('highscore', score);
     }
 
     showLosePopup();
