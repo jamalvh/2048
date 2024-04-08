@@ -6,7 +6,6 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 // TODO: Michiganify
 // TODO: Animation
-// TODO: HiveDB (highscores, progress (save nums not tiles))
 // tile stacking on merge and new game (something with Stack and no pop)
 
 void main() async {
@@ -28,6 +27,19 @@ class MyApp extends StatelessWidget {
   }
 }
 
+var tileImages = {
+  2: 'assets/arthur.png',
+  4: 'assets/kloosterman.jpeg',
+  8: 'assets/juett.jpeg',
+  16: 'assets/awdeorio.jpg',
+  32: 'assets/graetz.jpg',
+  64: 'assets/mdarden.jpeg',
+  128: 'assets/paoletti.jpg',
+  256: 'assets/peikert',
+  512: 'assets/beau',
+  2048: 'assets/ono.png'
+};
+
 Map<int, Color> tileColors = {
   0: const Color.fromARGB(255, 19, 59, 95),
   2: const Color.fromARGB(255, 226, 219, 212),
@@ -44,14 +56,14 @@ Map<int, Color> tileColors = {
 };
 
 Map<int, Color> fontColors = {
-  0: const Color.fromARGB(255, 204, 192, 179),
-  2: const Color.fromARGB(255, 119, 110, 101),
-  4: const Color.fromARGB(255, 119, 110, 101),
+  0: Colors.white,
+  2: Colors.white,
+  4: Colors.white,
   8: Colors.white,
-  16: Colors.white,
+  16: Colors.black,
   32: Colors.white,
   64: Colors.white,
-  128: Colors.white,
+  128: Colors.black,
   256: Colors.white,
   512: Colors.white,
   1024: Colors.white,
@@ -145,30 +157,69 @@ class _MyHomePageState extends State<MyHomePage> {
             borderRadius: const BorderRadius.all(Radius.circular(4.0)),
             color: tileColors[tile.val],
           ),
-          child: Center(
-            child: Text(
-              tile.val != 0 ? tile.val.toString() : "",
-              style: TextStyle(
-                fontSize: (tile.val >= 1024) ? tileSize * 0.3 : tileSize * 0.4,
-                fontWeight: FontWeight.w800,
-                color: fontColors[tile.val],
-              ),
-            ),
-          ),
+          child: tile.val == 0
+              ? Container()
+              : Stack(
+                  children: [
+                    Image(
+                      image: AssetImage(tileImages[tile.val]!),
+                      // specify width and height for the image
+                      width: tileSize,
+                      height: tileSize,
+                    ),
+                    Positioned(
+                      top: 0,
+                      left: 0,
+                      child: Text(
+                        tile.val != 0 ? tile.val.toString() : "",
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w800,
+                            color: fontColors[tile.val]),
+                      ),
+                    ),
+                  ],
+                ),
         )),
       ),
     ));
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 25, 76, 124),
+      backgroundColor: const Color.fromARGB(255, 0, 39, 76),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            const Image(
+              image: AssetImage("blockM.png"),
+              // specify width and height for the image
+              width: 75,
+              height: 75,
+            ),
+            const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  "EECS",
+                  style: TextStyle(
+                      fontSize: 50,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  " 2048",
+                  style: TextStyle(
+                      fontSize: 50,
+                      color: Color.fromARGB(255, 255, 203, 5),
+                      fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
-                  width: 150,
+                  width: 165,
                   decoration: const BoxDecoration(
                     borderRadius: BorderRadius.all(Radius.circular(4)),
                     color: Color.fromARGB(255, 19, 59, 95),
@@ -179,7 +230,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       const SizedBox(height: 8),
                       const Text("SCORE",
                           style: TextStyle(
-                            color: Color.fromARGB(255, 250, 248, 239),
+                            color: Color.fromARGB(255, 255, 203, 5),
                             fontWeight: FontWeight.w800,
                           )),
                       Text(
@@ -195,7 +246,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 const SizedBox(width: 20),
                 Container(
-                  width: 150,
+                  width: 165,
                   decoration: const BoxDecoration(
                     borderRadius: BorderRadius.all(Radius.circular(4)),
                     color: Color.fromARGB(255, 19, 59, 95),
@@ -206,7 +257,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       const SizedBox(height: 8),
                       const Text("BEST",
                           style: TextStyle(
-                            color: Color.fromARGB(255, 250, 248, 239),
+                            color: Color.fromARGB(255, 255, 203, 5),
                             fontWeight: FontWeight.w800,
                           )),
                       Text(
@@ -229,7 +280,7 @@ class _MyHomePageState extends State<MyHomePage> {
               width: gridSize,
               height: gridSize,
               decoration: const BoxDecoration(
-                  color: Color.fromARGB(255, 14, 43, 69),
+                  color: Color.fromARGB(255, 0, 32, 61),
                   borderRadius: BorderRadius.all(Radius.circular(4.0))),
               child: GestureDetector(
                 onHorizontalDragEnd: (details) {
@@ -274,7 +325,7 @@ class _MyHomePageState extends State<MyHomePage> {
               },
               style: ButtonStyle(
                 backgroundColor: const MaterialStatePropertyAll(
-                    Color.fromARGB(255, 14, 43, 69)),
+                    Color.fromARGB(255, 19, 59, 95)),
                 shape: MaterialStatePropertyAll(
                   RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(4),
