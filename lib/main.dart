@@ -3,6 +3,8 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:flutter_glow/flutter_glow.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 // TODO: Michiganify
 // TODO: Animation
@@ -35,8 +37,8 @@ var tileImages = {
   32: 'assets/graetz.jpg',
   64: 'assets/mdarden.jpeg',
   128: 'assets/paoletti.jpg',
-  256: 'assets/peikert',
-  512: 'assets/beau',
+  256: 'assets/peikert.jpg',
+  512: 'assets/beau.jpeg',
   2048: 'assets/ono.png'
 };
 
@@ -62,8 +64,8 @@ Map<int, Color> fontColors = {
   8: Colors.white,
   16: Colors.black,
   32: Colors.white,
-  64: Colors.white,
-  128: Colors.black,
+  64: Colors.black,
+  128: Colors.white,
   256: Colors.white,
   512: Colors.white,
   1024: Colors.white,
@@ -94,10 +96,8 @@ class _MyHomePageState extends State<MyHomePage> {
       (col) => List.generate(4, (row) {
             return Tile(row, col, 0);
           }));
-  Iterable<Tile> get flattenedGrid => grid.expand((element) => element);
-  late double gridSize = 353.7;
+  late double gridSize = MediaQuery.of(context).size.width < 700 ? 353.7 : 450;
   late double tileSize = gridSize / 4;
-  List<Widget> tiles = [];
 
   @override
   void initState() {
@@ -136,6 +136,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    gridSize = MediaQuery.of(context).size.width < 600 ? 353.7 : 450;
+    tileSize = gridSize / 4;
     myOngoingGameBox.clear();
     myOngoingGameBox.put('score', score);
     for (int i = 0; i < 4; i++) {
@@ -143,202 +145,322 @@ class _MyHomePageState extends State<MyHomePage> {
         myOngoingGameBox.add(grid[i][j].val);
       }
     }
-    tiles.addAll(flattenedGrid.map(
-      (tile) => Positioned(
-        top: tile.y * tileSize,
-        left: tile.x * tileSize,
-        height: tileSize,
-        width: tileSize,
-        child: Center(
-            child: Container(
-          height: tileSize - 4 * 2,
-          width: tileSize - 4 * 2,
-          decoration: BoxDecoration(
-            borderRadius: const BorderRadius.all(Radius.circular(4.0)),
-            color: tileColors[tile.val],
-          ),
-          child: tile.val == 0
-              ? Container()
-              : Stack(
-                  children: [
-                    Image(
-                      image: AssetImage(tileImages[tile.val]!),
-                      // specify width and height for the image
-                      width: tileSize,
-                      height: tileSize,
-                    ),
-                    Positioned(
-                      top: 0,
-                      left: 0,
-                      child: Text(
-                        tile.val != 0 ? tile.val.toString() : "",
-                        style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w800,
-                            color: fontColors[tile.val]),
-                      ),
-                    ),
-                  ],
-                ),
-        )),
-      ),
-    ));
+
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 0, 39, 76),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: ListView(
+          shrinkWrap: true,
           children: [
-            const Image(
-              image: AssetImage("blockM.png"),
-              // specify width and height for the image
-              width: 75,
-              height: 75,
-            ),
-            const Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  "EECS",
-                  style: TextStyle(
-                      fontSize: 50,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  " 2048",
-                  style: TextStyle(
-                      fontSize: 50,
-                      color: Color.fromARGB(255, 255, 203, 5),
-                      fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  width: 165,
-                  decoration: const BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(4)),
-                    color: Color.fromARGB(255, 19, 59, 95),
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Image(
+                    image: AssetImage("assets/blockM.png"),
+                    // specify width and height for the image
+                    width: 75,
+                    height: 75,
                   ),
-                  child: Column(
+                  const Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const SizedBox(height: 8),
-                      const Text("SCORE",
-                          style: TextStyle(
-                            color: Color.fromARGB(255, 255, 203, 5),
-                            fontWeight: FontWeight.w800,
-                          )),
                       Text(
-                        "$score",
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 40,
-                          fontWeight: FontWeight.w800,
+                        "EECS",
+                        style: TextStyle(
+                            fontSize: 50,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      GlowText(
+                        " 2",
+                        blurRadius: 10,
+                        style: TextStyle(
+                            fontSize: 50,
+                            color: Color.fromARGB(255, 66, 133, 244),
+                            fontWeight: FontWeight.bold),
+                      ),
+                      GlowText(
+                        "0",
+                        blurRadius: 10,
+                        style: TextStyle(
+                            fontSize: 50,
+                            color: Color.fromARGB(255, 52, 168, 83),
+                            fontWeight: FontWeight.bold),
+                      ),
+                      GlowText(
+                        "4",
+                        blurRadius: 10,
+                        style: TextStyle(
+                            fontSize: 50,
+                            color: Color.fromARGB(255, 251, 188, 5),
+                            fontWeight: FontWeight.bold),
+                      ),
+                      GlowText(
+                        "8",
+                        blurRadius: 10,
+                        style: TextStyle(
+                            fontSize: 50,
+                            color: Color.fromARGB(255, 234, 67, 53),
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 165,
+                        decoration: const BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(4)),
+                          color: Color.fromARGB(255, 19, 59, 95),
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const SizedBox(height: 8),
+                            const Text("SCORE",
+                                style: TextStyle(
+                                  color: Color.fromARGB(255, 255, 203, 5),
+                                  fontWeight: FontWeight.w800,
+                                )),
+                            Text(
+                              "$score",
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 40,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 20),
+                      Container(
+                        width: 165,
+                        decoration: const BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(4)),
+                          color: Color.fromARGB(255, 19, 59, 95),
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const SizedBox(height: 8),
+                            const Text("BEST",
+                                style: TextStyle(
+                                  color: Color.fromARGB(255, 255, 203, 5),
+                                  fontWeight: FontWeight.w800,
+                                )),
+                            GlowText(
+                              blurRadius: 10,
+                              myBox.get('highscore').toString(),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 40,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
-                ),
-                const SizedBox(width: 20),
-                Container(
-                  width: 165,
-                  decoration: const BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(4)),
-                    color: Color.fromARGB(255, 19, 59, 95),
+                  const SizedBox(
+                    height: 20,
                   ),
-                  child: Column(
+                  Container(
+                    width: gridSize,
+                    height: gridSize,
+                    decoration: const BoxDecoration(
+                        color: Color.fromARGB(255, 0, 32, 61),
+                        borderRadius: BorderRadius.all(Radius.circular(4.0))),
+                    child: GestureDetector(
+                      onHorizontalDragEnd: (details) {
+                        if (details.primaryVelocity! > 250) {
+                          print("swipe: right");
+                          swipeRight();
+                          createNewTile(1);
+                          checkIfLost();
+                        }
+                        if (details.primaryVelocity! < -250) {
+                          print("swipe: left");
+                          swipeLeft();
+                          createNewTile(1);
+                          checkIfLost();
+                        }
+                      },
+                      onVerticalDragEnd: (details) {
+                        if (details.primaryVelocity! < -250) {
+                          print("swipe: up");
+                          swipeUp();
+                          createNewTile(1);
+                          checkIfLost();
+                        }
+                        if (details.primaryVelocity! > 250) {
+                          print("swipe: down");
+                          swipeDown();
+                          createNewTile(1);
+                          checkIfLost();
+                        }
+                      },
+                      child: GridView.builder(
+                        itemCount: 16,
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 4,
+                        ),
+                        itemBuilder: (context, index) {
+                          int x = index ~/ 4;
+                          int y = index % 4;
+                          Tile tile = grid[x][y];
+                          return Container(
+                            margin: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(4),
+                              color: tileColors[tile.val],
+                            ),
+                            child: Center(
+                              child: tile.val == 0
+                                  ? Container()
+                                  : ClipRRect(
+                                      borderRadius: BorderRadius.circular(4),
+                                      child: Stack(
+                                        children: [
+                                          Image(
+                                            image: AssetImage(
+                                                tileImages[tile.val]!),
+                                            width: tileSize,
+                                            height: tileSize,
+                                          ),
+                                          Positioned(
+                                            top: 0,
+                                            left: 0,
+                                            child: Text(
+                                              tile.val != 0
+                                                  ? tile.val.toString()
+                                                  : "",
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w800,
+                                                color: fontColors[tile.val],
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 15,
+                  ),
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      const SizedBox(height: 8),
-                      const Text("BEST",
-                          style: TextStyle(
-                            color: Color.fromARGB(255, 255, 203, 5),
-                            fontWeight: FontWeight.w800,
+                      TextButton(
+                          style: ButtonStyle(
+                            backgroundColor: const MaterialStatePropertyAll(
+                                Color.fromARGB(255, 19, 59, 95)),
+                            shape: MaterialStatePropertyAll(
+                              RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                            ),
+                            elevation: const MaterialStatePropertyAll(0),
+                          ),
+                          onPressed: () {
+                            launchUrl(
+                              Uri.parse(
+                                  "https://maizepages.umich.edu/organization/dsc-at-u-m"),
+                              mode: LaunchMode.externalApplication,
+                            );
+                          },
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              GlowText(
+                                "G",
+                                style: TextStyle(
+                                    fontSize: 17,
+                                    color: Color.fromARGB(255, 66, 133, 244),
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              GlowText(
+                                "o",
+                                style: TextStyle(
+                                    fontSize: 17,
+                                    color: Color.fromARGB(255, 234, 67, 53),
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              GlowText(
+                                "o",
+                                style: TextStyle(
+                                    fontSize: 17,
+                                    color: Color.fromARGB(255, 251, 188, 5),
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              GlowText(
+                                "g",
+                                style: TextStyle(
+                                    fontSize: 17,
+                                    color: Color.fromARGB(255, 66, 133, 244),
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              GlowText(
+                                "l",
+                                style: TextStyle(
+                                    fontSize: 17,
+                                    color: Color.fromARGB(255, 52, 168, 83),
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              GlowText(
+                                "e",
+                                style: TextStyle(
+                                    fontSize: 17,
+                                    color: Color.fromARGB(255, 234, 67, 53),
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              GlowText(
+                                " @ UM",
+                                style: TextStyle(
+                                    fontSize: 17,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ],
                           )),
-                      Text(
-                        myBox.get('highscore').toString(),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 40,
-                          fontWeight: FontWeight.w800,
+                      const SizedBox(width: 50),
+                      ElevatedButton(
+                        onPressed: () {
+                          startNewGame();
+                        },
+                        style: ButtonStyle(
+                          backgroundColor: const MaterialStatePropertyAll(
+                              Color.fromARGB(255, 19, 59, 95)),
+                          shape: MaterialStatePropertyAll(
+                            RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                          elevation: const MaterialStatePropertyAll(0),
+                        ),
+                        child: const Text(
+                          "Play Again",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w900,
+                              fontSize: 17),
                         ),
                       ),
                     ],
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            Container(
-              width: gridSize,
-              height: gridSize,
-              decoration: const BoxDecoration(
-                  color: Color.fromARGB(255, 0, 32, 61),
-                  borderRadius: BorderRadius.all(Radius.circular(4.0))),
-              child: GestureDetector(
-                onHorizontalDragEnd: (details) {
-                  if (details.primaryVelocity! > 250) {
-                    print("swipe: right");
-                    swipeRight();
-                    createNewTile(1);
-                    checkIfLost();
-                  }
-                  if (details.primaryVelocity! < -250) {
-                    print("swipe: left");
-                    swipeLeft();
-                    createNewTile(1);
-                    checkIfLost();
-                  }
-                },
-                onVerticalDragEnd: (details) {
-                  if (details.primaryVelocity! < -250) {
-                    print("swipe: up");
-                    swipeUp();
-                    createNewTile(1);
-                    checkIfLost();
-                  }
-                  if (details.primaryVelocity! > 250) {
-                    print("swipe: down");
-                    swipeDown();
-                    createNewTile(1);
-                    checkIfLost();
-                  }
-                },
-                child: Stack(
-                  children: tiles,
-                ),
-              ),
-            ),
-            const SizedBox(
-              height: 15,
-            ),
-            ElevatedButton(
-              onPressed: () {
-                startNewGame();
-              },
-              style: ButtonStyle(
-                backgroundColor: const MaterialStatePropertyAll(
-                    Color.fromARGB(255, 19, 59, 95)),
-                shape: MaterialStatePropertyAll(
-                  RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                ),
-                elevation: const MaterialStatePropertyAll(0),
-              ),
-              child: const Text(
-                "New Game",
-                style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w900,
-                    fontSize: 15),
+                ],
               ),
             ),
           ],
