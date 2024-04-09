@@ -1,7 +1,7 @@
 # 🧠 EECS 2048
 
-<img src="https://github.com/jamalvh/2048/assets/113135025/5d9b846e-1a6e-4103-a346-93a4f4b0fb39" alt="Screenshot" style="width:250px;">
-<img src="https://github.com/jamalvh/2048/assets/113135025/bea28994-92c2-4e14-b851-7b3f77a6ef05" alt="Screenshot" style="width:250px;">
+<img width="201.7" alt="Screenshot 2024-04-09 at 5 31 16 PM" src="https://github.com/jamalvh/2048/assets/113135025/f9878a6c-0bdf-4d50-a73d-486dfd608efd">
+<img width="200" alt="Screenshot 2024-04-09 at 5 28 25 PM" src="https://github.com/jamalvh/2048/assets/113135025/9df80d84-af5e-40e4-be4d-42f1314ad19b">
 
 Can you reach a score of 2048 in this puzzle game? Unlock your favorite EECS professors!
 
